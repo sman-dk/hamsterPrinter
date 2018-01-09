@@ -1,0 +1,26 @@
+[mysql-feeder]
+host: localhost
+user: feeder
+passphrase: s3cret
+dbname: hamsterprinter
+
+[mysql-printer]
+host: localhost
+user: printer
+passphrase: s3cret
+dbname: hamsterprinter
+printFeeds: all
+
+[printer]
+dev: /dev/ttyUSB0
+rotate: false
+textSize: 30
+fontFile: /usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-B.ttf
+
+[twitter]
+# https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens
+consumerKey: s3cret
+consumerSecret: s3cret
+accessTokenKey: s3cret
+accessTokenSecret: s3cret
+filter: #love #peace #harmony #hamsterprinter
