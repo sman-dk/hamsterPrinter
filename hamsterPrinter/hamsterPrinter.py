@@ -83,7 +83,7 @@ class printout:
 
         iconHeight = 120
         imgQR = self.qrIcon(twitterData['url'], size=iconHeight)
-        imgTwit = Image.open("/home/georg/hamster/hamsterPrinter/artwork/agata/twitter.png").convert("1")
+        imgTwit = Image.open("/home/georg/hamster/hamsterPrinter/artwork/SoMe/agata/twitter.png").convert("1")
         imgTwit = imgTwit.resize([iconHeight-2*4,iconHeight-2*4]) # QR has a border of 4
         headTxt = "%s @%s %s\n%s" % (twitterData['name'], twitterData['screen_name'], [ "retweeted" if twitterData['retweet'] else "tweeted"][0], twitterData['created_at'])
         imHeadTxtWidth = currentpxWidth - 2*iconHeight - 2 - 12

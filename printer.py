@@ -49,12 +49,10 @@ keys = ['dev', 'rotate', 'textSize', 'fontFile']
 printerConf = {}
 for k in keys:
     printerConf[k] = cfg.get('printer', k)
-print printerConf['rotate']
 if any([x in printerConf['rotate'] for x in ['true', 'True', 'yes', 'Yes', '180']]):
     printerConf['rotate'] = True
 else:
     printerConf['rotate'] = False
-print printerConf['rotate']
 printerConf['textSize'] = int(printerConf['textSize'])
 
 # Setup printer
