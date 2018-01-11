@@ -61,9 +61,9 @@ printout = hamsterPrinter.printout(posprinter)
 currentpxWidth = 2 * posprinter.pxWidth
 
 # Which feeds to print
-printFeeds = [ i for i in cfg.get('mysql-printer', 'printFeeds').split()]
+printFeeds = [ i.lower() for i in cfg.get('mysql-printer', 'printFeeds').split()]
 while True:
-    if any(x in printFeeds for x in ['Twitter','twitter','all']):
+    if any(x in printFeeds for x in ['twitter','all']):
         try:
             dbPrinter = conn.cursor()
             dbPrinter.execute("""SELECT id, jdoc FROM printout WHERE printed = 0 ORDER BY id ASC LIMIT 1""")

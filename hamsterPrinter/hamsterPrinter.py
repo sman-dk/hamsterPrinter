@@ -12,7 +12,7 @@ from StringIO import StringIO
 
 """version 1.0 - feeder for the hamsterPrinter a SoMe etc. POS printer"""
 class hamster:
-    """Basic stuff like reading the cfg"""
+    """Basic stuff like reading the cfg and other common stuff"""
     def readConfig(self, cfg='hamsterPrinter.cfg'):
         """Write newlines and optional cut paper"""
         from configparser import ConfigParser
@@ -20,6 +20,58 @@ class hamster:
         parser.read(cfg)
         return parser
 
+    def pinAgain(self, weatherType, dbObj, chuteLengthPx, cfg):
+        """Function to check if a "pinned" message/whatever should be printed again"""
+        printFeeds = [ i.lower() for i in cfg.get('mysql-printer', 'printFeeds').split()]
+        printout = []
+        # If the printer is too much behind we wait with the pinning
+        numberOfNulls = 0
+        NullLimit = 2
+        try:
+            dbWeather = dbObj.cursor()
+            dbWeather.execute("""SELECT srcType.shortName, printout.height 
+                FROM printout INNER JOIN srcType 
+                ON srcType.id = printout.srcType 
+                ORDER BY printout.id DESC LIMIT 100""")
+            px=0
+            while True:
+                try:
+                    row = dbWeather.fetchone()
+                    # If there are no more rows to fetch
+                    if row == None:
+                        break
+                    srcType, height = row
+                    # Only include sources that are active on the printer
+                    if srcType.lower() not in printFeeds or 'all' in printFeeds:
+                        continue
+                    if height is None:
+                        numberOfNulls += 1
+                        if numberOfNulls >= NullLimit:
+                            print("""The printer is behind with its printing. Waiting with pinning message of type %s""" % weatherType)
+                            return False
+                    else:
+                        px += height
+                        if px > chuteLengthPx:
+                            # We have fetched enough now
+                            break
+                    printout.append({"srcType": srcType, "height": height})
+                except Exception, e:
+                    print(e)
+                    break  
+            dbWeather.close()     
+        except Exception, e:
+            print(e)
+            pass
+        # Find out if it is about time to print something new
+        aboutTime = True
+        for p in printout:
+            if p['srcType'] is weatherType:
+                aboutTime = False
+        if aboutTime:
+            print """The pinned message of type %s has been swapped out of the chute. Lets add it again!""" % weatherType
+            return True
+        else:
+            return False
 
 
 class printout:
