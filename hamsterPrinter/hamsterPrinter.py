@@ -26,8 +26,6 @@ class hamster:
         printFeeds = [ i.lower() for i in cfg.get('printer', 'printFeeds').split()]
         printout = []
         # If the printer is too much behind we wait with the pinning
-        numberOfNulls = 0
-        NullLimit = 2
         try:
             dbWeather = dbObj.cursor()
             dbWeather.execute("""SELECT srcType.shortName, printout.height 
@@ -46,10 +44,8 @@ class hamster:
                     if srcType.lower() not in printFeeds and 'all' not in printFeeds:
                         continue
                     if height is None:
-                        numberOfNulls += 1
-                        if numberOfNulls >= NullLimit:
-                            print("""The printer is behind with its printing. Waiting with pinning message of type %s""" % weatherType)
-                            return False
+                        print("""The printer is behind with its printing. Waiting with pinning message of type %s""" % weatherType)
+                        return False
                     else:
                         px += height
                         if px > chuteLengthPx:
@@ -66,7 +62,7 @@ class hamster:
         # Find out if it is about time to print something new
         aboutTime = True
         for p in printout:
-            if p['srcType'] is weatherType:
+            if p['srcType'] == weatherType:
                 aboutTime = False
         # If nothing has been printed yet
         if len(printout) is 0:
@@ -267,10 +263,12 @@ class printout:
         imCloud = self.imBox(currentpxWidth, im.size[0])
         imCloud.paste(im,((currentpxWidth-imWidth)/2,0))
         imgArray.append(imCloud)
-        imgArray.append(self.posprinter.printFontText(weatherData['current']['condition']['text'], align="center", 
+        imgArray.append(self.posprinter.printFontText(
+            weatherData['current']['condition']['text'], align="center", 
             fontFile=printerConf['fontFile'], textSize=30, 
             leading=0.25, returnPILObject=True, dontPrint=True))
-        imgArray.append(self.posprinter.printFontText(u'%s\xb0' % weatherData['current']['temp_c'], align="center", 
+        imgArray.append(self.posprinter.printFontText(u'%s\xb0' % 
+            weatherData['current']['temp_c'], align="center", 
             fontFile=printerConf['fontFile'], textSize=100, 
             leading=0.25, returnPILObject=True, dontPrint=True))
         # Wind speed + direction
@@ -281,19 +279,25 @@ class printout:
 
         try:
             filePath = "%s/%s/arrow.png" % (basedir,dayOrNight)
-            imArrow = Image.open(filePath,'r').convert("1")
+            imArrow = Image.open(filePath,'r')
         except:
             print(e)
             raise
         else:
             imArrow = imArrow.rotate(weatherData['current']['wind_degree'], expand=True)
-            imArrow = imArrow.resize([100,int(100./imArrow.size[0]*imArrow.size[1])])
+            arrowWidth = 70
+            imArrow = imArrow.resize([arrowWidth,int(float(arrowWidth)/imArrow.size[0]*
+                imArrow.size[1])]).convert("1")
             imWind = self.imBox(imWindText.size[0]+imArrow.size[0],
-                [ imArrow.size[1] if imArrow.size[1] > imArrow.size[0] else imArrow.size[0]][0])
+                [ imArrow.size[1] if imArrow.size[1] > imArrow.size[0] 
+                    else imArrow.size[0]][0])
             imWind.paste(imWindText,(0,0))
-            imWind.paste(imArrow,(imWindText.size[0]+25,0))
-        imgArray.append(imWind)
-        imgArray.append(self.posprinter.printFontText("%i%% rel.   %.0f mPa   temp. feels like %i\xb0" %
+            imWind.paste(imArrow,(imWindText.size[0]+10,0))
+            centeredImWind = self.imBox(currentpxWidth,imWind.size[1])
+            centeredImWind.paste(imWind,[(currentpxWidth-imWind.size[0])/2,0])
+        imgArray.append(centeredImWind)
+        imgArray.append(self.posprinter.printFontText(
+            "%i%% rel.   %.0f mPa   temp. feels like %i\xb0" %
             (weatherData['current']['humidity'], weatherData['current']['pressure_mb'], 
             weatherData['current']['feelslike_c']), align="center", 
             fontFile=printerConf['fontFile'], textSize=25,

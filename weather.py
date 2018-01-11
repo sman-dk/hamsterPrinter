@@ -113,17 +113,17 @@ def weatherStuffUnfinished():
 
 if "currentEnable" in weatherConf:
     if "currentEnforceUpdateInterval" in weatherConf:
-        schedule.every(int(weatherConf["currentEnforceUpdateInterval"])).seconds.do(weatherCurrent)
+        schedule.every(int(weatherConf["currentEnforceUpdateInterval"])).seconds.do(lambda: weatherCurrent(weatherConf))
     if "currentEnforceUpdateTime" in weatherConf:
         for t in weatherConf["currentEnforceUpdateTime"].split():
             schedule.every().day.at(t).do(lambda: weatherCurrent(weatherConf))
 
-if "ForecastEnable" in weatherConf:
-    if "ForecastEnforceUpdateInterval" in weatherConf:
-        schedule.every(int(weatherConf["ForecastEnforceUpdateInterval"])).seconds.do(weatherForecast)
-    if "ForecastEnforceUpdateTime" in weatherConf:
-        for t in weatherConf["ForecastEnforceUpdateTime"].split():
-            schedule.every().day.at(t).do(lambda: weatherForecast(weatherConf))
+#if "ForecastEnable" in weatherConf:
+#    if "ForecastEnforceUpdateInterval" in weatherConf:
+#        schedule.every(int(weatherConf["ForecastEnforceUpdateInterval"])).seconds.do(lambda: weatherForecast(weatherConf))
+#    if "ForecastEnforceUpdateTime" in weatherConf:
+#        for t in weatherConf["ForecastEnforceUpdateTime"].split():
+#            schedule.every().day.at(t).do(lambda: weatherForecast(weatherConf))
 
 # Main loop
 while True:
@@ -133,8 +133,9 @@ while True:
         if hamster.pinAgain("WeatherCurrent", conn, chuteLengthPx, cfg):
             weatherCurrent(weatherConf)
     if "ForecastEnable" in weatherConf:
-        if hamster.pinAgain("WeatherForecast", conn, chuteLengthPx, cfg):
-            weatherForecast(weatherConf)
+        #if hamster.pinAgain("WeatherForecast", conn, chuteLengthPx, cfg):
+            #weatherForecast(weatherConf)
+        pass
 
     time.sleep(10)
 
