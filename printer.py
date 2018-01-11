@@ -8,7 +8,6 @@ from POSprinter import POSprinter
 import argparse
 import atexit
 import time
-import json
 import MySQLdb
 
 # Argument parsing
@@ -61,35 +60,14 @@ printout = hamsterPrinter.printout(posprinter)
 currentpxWidth = 2 * posprinter.pxWidth
 
 # Which feeds to print
-printFeeds = [ i.lower() for i in cfg.get('mysql-printer', 'printFeeds').split()]
+printFeeds = [ i.lower() for i in cfg.get('printer', 'printFeeds').split()]
 while True:
     if any(x in printFeeds for x in ['twitter','all']):
-        try:
-            dbPrinter = conn.cursor()
-            dbPrinter.execute("""SELECT id, jdoc FROM printout WHERE printed = 0 ORDER BY id ASC LIMIT 1""")
-            tweet = dbPrinter.fetchone()
-            # if there is unprinted tweets waiting for us
-            if tweet is not None:
-                tweetData = json.loads(tweet[1])
-                printData = printout.twitter(tweetData, currentpxWidth, printerConf)
-                # Hmm. one could argue that if printing something fails, 
-                # then the message should not be marked as printed in the db..
-                dbPrinter.execute("""UPDATE printout SET height = %s, 
-                    printed = 1, printedImg = _binary %s, printedImgRotated = %s, 
-                    printedImgMimeType = %s WHERE id=%s""", (str(printData[0]),
-                    printData[1], str(printData[2]),
-                    printData[3], str(tweet[0])))
-            dbPrinter.close()
-        except Exception, e:
-            print(e)
-            try:
-                print("The id for the failed message in the printout table: %i" % tweet[0])
-            except:
-                pass
-        else:
-            if tweet is not None:
-                print("Printed a twitter message from %s to the printer".encode('utf-8') % tweetData['screen_name'])
-    elif any(x in printFeeds for x in ['Facebook','facebook','all']):
+        printout.commonPrint(conn, 'Twitter', currentpxWidth, printerConf)
+    if any(x in printFeeds for x in ['facebook','all']):
         pass
+    if any(x in printFeeds for x in ['weather','all']):
+        printout.commonPrint(conn, 'WeatherCurrent', currentpxWidth, printerConf)
+        #printout.commonPrint(conn, 'WeatherForecast', currentpxWidth, printerConf)
     # Basic rate limiting. Also we do not want to query the database too often.
     time.sleep(2)

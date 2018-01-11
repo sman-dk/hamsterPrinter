@@ -9,6 +9,7 @@ import ImageDraw
 import time
 import urllib2 # In python3 this is just urllib
 from StringIO import StringIO
+import json
 
 """version 1.0 - feeder for the hamsterPrinter a SoMe etc. POS printer"""
 class hamster:
@@ -22,7 +23,7 @@ class hamster:
 
     def pinAgain(self, weatherType, dbObj, chuteLengthPx, cfg):
         """Function to check if a "pinned" message/whatever should be printed again"""
-        printFeeds = [ i.lower() for i in cfg.get('mysql-printer', 'printFeeds').split()]
+        printFeeds = [ i.lower() for i in cfg.get('printer', 'printFeeds').split()]
         printout = []
         # If the printer is too much behind we wait with the pinning
         numberOfNulls = 0
@@ -42,7 +43,7 @@ class hamster:
                         break
                     srcType, height = row
                     # Only include sources that are active on the printer
-                    if srcType.lower() not in printFeeds or 'all' in printFeeds:
+                    if srcType.lower() not in printFeeds and 'all' not in printFeeds:
                         continue
                     if height is None:
                         numberOfNulls += 1
@@ -67,6 +68,11 @@ class hamster:
         for p in printout:
             if p['srcType'] is weatherType:
                 aboutTime = False
+        # If nothing has been printed yet
+        if len(printout) is 0:
+            print printout
+            print "Nothing has been printed by the printer so we are not pinning anything yet."
+            aboutTime = False
         if aboutTime:
             print """The pinned message of type %s has been swapped out of the chute. Lets add it again!""" % weatherType
             return True
@@ -87,32 +93,53 @@ class printout:
         draw.rectangle((0,0) + img.size,fill=bgColor)
         return img
 
-    def combinePILObjects(self, imgArray, currentpxWidth, printerConf):
+    def combinePILObjects(self, imgArray, currentpxWidth, printerConf, doPrint=True, multiCol=False):
         """Combine objects and print them"""
-        # Calculate height
-        height = 0
-        imgTooWide=False
-        for i in range(len(imgArray)):
-            img = imgArray[i]
-            # If an image is too large
-            if img.size[0] > currentpxWidth:
-                # resize image
-                imgArray[i] = img.resize([currentpxWidth,int(img.size[1]*float(currentpxWidth)/img.size[0])])
-            height += imgArray[i].size[1]
-        # Create 
-        imgMaster = self.imBox(currentpxWidth, height)
-        offset = 0
-        for img in imgArray:
-            imgMaster.paste(img,(0,offset))
-            offset += img.size[1]
-        if printerConf['rotate']:
-            imgMaster = imgMaster.rotate(180)
+        if multiCol:
+            # Multiple columns object (e.g. printing wearther forecast). imgArray is then an array of arrays.
+            imArray = [ self.combinePILObjects(i, currentpxWidth, printerConf, doPrint=False) for i in imgArray]
+            # Determine height pre multicol
+            orgMaxHeight=0
+            for im in imArray:
+                h = im[0].size[1]
+                if h > orgMaxHeight:
+                    orgMaxHeight = h
+            numCols = len(imArray)
+            imgMaster = self.imBox(currentpxWidth, orgMaxHeight/numCols)
+            # Paste the columns together
+            offset = 0
+            numCols = len(imArray)
+            colWidth = currentpxWidth / numCols
+            for i in imArray:
+                imgMaster.paste(i[0].resize([colWidth, int(i[0].size[1]*1./numCols)]),(offset,0))
+                offset += colWidth  
+        else:
+            # Calculate height
+            height = 0
+            imgTooWide=False
+            for i in range(len(imgArray)):
+                img = imgArray[i]
+                # If an image is too large
+                if img.size[0] > currentpxWidth:
+                    # resize image
+                    imgArray[i] = img.resize([currentpxWidth,int(img.size[1]*float(currentpxWidth)/img.size[0])])
+                height += imgArray[i].size[1]
+            # Create 
+            imgMaster = self.imBox(currentpxWidth, height)
+            offset = 0
+            for img in imgArray:
+                imgMaster.paste(img,(0,offset))
+                offset += img.size[1]
+            if printerConf['rotate']:
+                imgMaster = imgMaster.rotate(180)
+
         height = imgMaster.size[1]
         bytes_io = BytesIO()
         imgMaster.save(bytes_io, format="PNG")
         bytes_io.seek(0)
         imgData = bytes_io.read()
-        self.posprinter.printImgFromPILObject(imgMaster)
+        if doPrint:
+            self.posprinter.printImgFromPILObject(imgMaster)
         return(imgMaster, height, imgData)
 
     def qrIcon(self, url, size=120):
@@ -127,6 +154,43 @@ class printout:
         qr.make(fit=True)
         img = qr.make_image()
         return img.resize((iconHeight,iconHeight))
+
+    def commonPrint(self, conn, srcType, currentpxWidth, printerConf):
+        try:
+            dbPrinter = conn.cursor()
+            dbPrinter.execute("""SELECT printout.id, printout.jdoc 
+                FROM printout INNER JOIN srcType 
+                ON srcType.id = printout.srcType 
+                WHERE srcType.shortName = %s AND printed = 0
+                ORDER BY printout.id ASC LIMIT 1""", (srcType,))
+            row = dbPrinter.fetchone()
+            # if there is something unprinted waiting for us for the given srcType
+            if row is not None:
+                data = json.loads(row[1])
+                hest = getattr(self, srcType.lower())
+                printData = hest(data, currentpxWidth, printerConf)
+                # Hmm. one could argue that if printing something fails, 
+                # then the message should not be marked as printed in the db..
+                dbPrinter.execute("""UPDATE printout SET height = %s, 
+                    printed = 1, printedImg = _binary %s, printedImgRotated = %s, 
+                    printedImgMimeType = %s WHERE id=%s""", (str(printData[0]),
+                    printData[1], str(printData[2]),
+                    printData[3], str(row[0])))
+            dbPrinter.close()
+        except Exception, e:
+            print(e)
+            try:
+                print("The id for the failed message in the printout table: %i" % row[0])
+            except:
+                pass
+        else:
+            if row is not None:
+                if srcType is "Twitter":
+                    print("Printed a twitter message from %s to the printer".encode('utf-8') % data['screen_name'])
+                if srcType is "WeatherCurrent":
+                    print("Printed a WeatherCurrent message")
+                if srcType is "WeatherForecast": 
+                    print("Printed a WeatherForecast message")
 
     def twitter(self, twitterData, currentpxWidth, printerConf):
         """Construct image with the tweet and print it"""
@@ -174,3 +238,70 @@ class printout:
         # print it 
         imgMaster, height, imgData = self.combinePILObjects(imgArray, currentpxWidth, printerConf)        
         return (height, imgData, [0 if not printerConf['rotate'] else 1][0], "image/png")
+
+    def weathercurrent(self, weatherData, currentpxWidth, printerConf):
+        imgArray = []
+        imgArray.append(self.posprinter.printFontText('Current weather', align="center", 
+            fontFile=printerConf['fontFile'], textSize=50, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+        imgArray.append(self.posprinter.printFontText("%s %s" % 
+            (weatherData['current']['last_updated'],
+            weatherData['location']['name']) , align="center", 
+            fontFile=printerConf['fontFile'], textSize=30, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+        basedir="artwork/weather/georg"
+        dayOrNight = [ "day" if weatherData['current']['is_day'] is 1 else "night"][0]
+        try:
+            filePath = "%s/%s/%s.png" % (basedir,dayOrNight,weatherData['current']['condition']['code'])
+            im = Image.open(filePath,'r').convert("1")
+        except:
+            try:
+                filePathUnknown = "%s/%s/unknown.png" % (basedir,dayOrNight)
+                im = Image.open(filePathUnknown,'r').convert("1")
+            except Exception, e:
+                print "Hmm. It seems we could not read %s or %s in the same folder" % (filePath, filePathUnknown)
+                print(e)
+                raise
+        imWidth=currentpxWidth/3*2
+        im = im.resize([imWidth,int(float(imWidth)/im.size[0]*im.size[1])])
+        imCloud = self.imBox(currentpxWidth, im.size[0])
+        imCloud.paste(im,((currentpxWidth-imWidth)/2,0))
+        imgArray.append(imCloud)
+        imgArray.append(self.posprinter.printFontText(weatherData['current']['condition']['text'], align="center", 
+            fontFile=printerConf['fontFile'], textSize=30, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+        imgArray.append(self.posprinter.printFontText(u'%s\xb0' % weatherData['current']['temp_c'], align="center", 
+            fontFile=printerConf['fontFile'], textSize=100, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+        # Wind speed + direction
+        mps = weatherData['current']['wind_kph']/3.6
+        imWindText = self.posprinter.printFontText('%.1f m/s' % mps, align="left", 
+            fontFile=printerConf['fontFile'], textSize=40, 
+            leading=0.25, returnPILObject=True, dontPrint=True)
+
+        try:
+            filePath = "%s/%s/arrow.png" % (basedir,dayOrNight)
+            imArrow = Image.open(filePath,'r').convert("1")
+        except:
+            print(e)
+            raise
+        else:
+            imArrow = imArrow.rotate(weatherData['current']['wind_degree'], expand=True)
+            imArrow = imArrow.resize([100,int(100./imArrow.size[0]*imArrow.size[1])])
+            imWind = self.imBox(imWindText.size[0]+imArrow.size[0],
+                [ imArrow.size[1] if imArrow.size[1] > imArrow.size[0] else imArrow.size[0]][0])
+            imWind.paste(imWindText,(0,0))
+            imWind.paste(imArrow,(imWindText.size[0]+25,0))
+        imgArray.append(imWind)
+        imgArray.append(self.posprinter.printFontText("%i%% rel.   %.0f mPa   temp. feels like %i\xb0" %
+            (weatherData['current']['humidity'], weatherData['current']['pressure_mb'], 
+            weatherData['current']['feelslike_c']), align="center", 
+            fontFile=printerConf['fontFile'], textSize=25,
+            leading=0.25, returnPILObject=True, dontPrint=True))
+        imgArray.append(self.posprinter.printLine(returnPILObject=True, dontPrint=True))
+        imgMaster, height, imgData = self.combinePILObjects(imgArray, currentpxWidth, printerConf)    
+        return (height, imgData, [0 if not printerConf['rotate'] else 1][0], "image/png")
+
+    def weatherforecast(self, weatherData, currentpxWidth, printerConf):
+        print "OBS THIS FUNCTION MUST BE OUTCOMMENTED IN printer.py"
+        pass
