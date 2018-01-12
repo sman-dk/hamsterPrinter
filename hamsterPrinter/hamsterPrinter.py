@@ -10,6 +10,7 @@ import time
 import urllib2 # In python3 this is just urllib
 from StringIO import StringIO
 import json
+from datetime import datetime
 
 """version 1.0 - feeder for the hamsterPrinter a SoMe etc. POS printer"""
 class hamster:
@@ -235,20 +236,14 @@ class printout:
         imgMaster, height, imgData = self.combinePILObjects(imgArray, currentpxWidth, printerConf)        
         return (height, imgData, [0 if not printerConf['rotate'] else 1][0], "image/png")
 
-    def weathercurrent(self, weatherData, currentpxWidth, printerConf):
-        imgArray = []
-        imgArray.append(self.posprinter.printFontText('Current weather', align="center", 
-            fontFile=printerConf['fontFile'], textSize=50, 
-            leading=0.25, returnPILObject=True, dontPrint=True))
-        imgArray.append(self.posprinter.printFontText("%s %s" % 
-            (weatherData['current']['last_updated'],
-            weatherData['location']['name']) , align="center", 
-            fontFile=printerConf['fontFile'], textSize=30, 
-            leading=0.25, returnPILObject=True, dontPrint=True))
+    def weatherCloud(self, weatherData, currentpxWidth, dayType, widthDiv=1.3):
         basedir="artwork/weather/georg"
-        dayOrNight = [ "day" if weatherData['current']['is_day'] is 1 else "night"][0]
+        if dayType == "current":
+            dayOrNight = [ "day" if weatherData['current']['is_day'] is 1 else "night"][0]
+        else:
+            dayOrNight = "day"
         try:
-            filePath = "%s/%s/%s.png" % (basedir,dayOrNight,weatherData['current']['condition']['code'])
+            filePath = "%s/%s/%s.png" % (basedir,dayOrNight,weatherData[dayType]['condition']['code'])
             im = Image.open(filePath,'r').convert("1")
         except:
             try:
@@ -258,29 +253,43 @@ class printout:
                 print "Hmm. It seems we could not read %s or %s in the same folder" % (filePath, filePathUnknown)
                 print(e)
                 raise
-        imWidth=currentpxWidth/3*2
+        imWidth=int(currentpxWidth/widthDiv)
         im = im.resize([imWidth,int(float(imWidth)/im.size[0]*im.size[1])])
         imCloud = self.imBox(currentpxWidth, im.size[0])
         imCloud.paste(im,((currentpxWidth-imWidth)/2,0))
+        return imCloud
+
+    def weathercurrent(self, weatherData, currentpxWidth, printerConf):
+        imgArray = []
+        imgArray.append(self.posprinter.printFontText('Current weather', align="center", 
+            fontFile=printerConf['fontFile'], textSize=60, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+        imgArray.append(self.posprinter.printFontText("%s %s" % 
+            (weatherData['current']['last_updated'],
+            weatherData['location']['name']) , align="center", 
+            fontFile=printerConf['fontFile'], textSize=30, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+        imCloud = self.weatherCloud(weatherData, currentpxWidth, dayType='current')
         imgArray.append(imCloud)
         imgArray.append(self.posprinter.printFontText(
             weatherData['current']['condition']['text'], align="center", 
-            fontFile=printerConf['fontFile'], textSize=30, 
+            fontFile=printerConf['fontFile'], textSize=40, 
             leading=0.25, returnPILObject=True, dontPrint=True))
-        imgArray.append(self.posprinter.printFontText(u'%s\xb0' % 
+        imgArray.append(self.posprinter.printFontText(u'%.1f\xb0' % 
             weatherData['current']['temp_c'], align="center", 
-            fontFile=printerConf['fontFile'], textSize=100, 
+            fontFile=printerConf['fontFile'], textSize=120, 
             leading=0.25, returnPILObject=True, dontPrint=True))
         # Wind speed + direction
         mps = weatherData['current']['wind_kph']/3.6
         imWindText = self.posprinter.printFontText('%.1f m/s' % mps, align="left", 
             fontFile=printerConf['fontFile'], textSize=40, 
             leading=0.25, returnPILObject=True, dontPrint=True)
-
+        basedir="artwork/weather/georg"
+        dayOrNight = [ "day" if weatherData['current']['is_day'] is 1 else "night"][0]
         try:
             filePath = "%s/%s/arrow.png" % (basedir,dayOrNight)
             imArrow = Image.open(filePath,'r')
-        except:
+        except Exception, e:
             print(e)
             raise
         else:
@@ -300,12 +309,57 @@ class printout:
             "%i%% rel.   %.0f mPa   temp. feels like %i\xb0" %
             (weatherData['current']['humidity'], weatherData['current']['pressure_mb'], 
             weatherData['current']['feelslike_c']), align="center", 
-            fontFile=printerConf['fontFile'], textSize=25,
+            fontFile=printerConf['fontFile'], textSize=30,
             leading=0.25, returnPILObject=True, dontPrint=True))
         imgArray.append(self.posprinter.printLine(returnPILObject=True, dontPrint=True))
         imgMaster, height, imgData = self.combinePILObjects(imgArray, currentpxWidth, printerConf)    
         return (height, imgData, [0 if not printerConf['rotate'] else 1][0], "image/png")
 
     def weatherforecast(self, weatherData, currentpxWidth, printerConf):
-        print "OBS THIS FUNCTION MUST BE OUTCOMMENTED IN printer.py"
-        pass
+        imgArray = []
+        imgArray.append(self.posprinter.printFontText('Weather forecast', align="center", 
+            fontFile=printerConf['fontFile'], textSize=60, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+        imgArray.append(self.posprinter.printFontText("%s %s" % 
+            (weatherData['current']['last_updated'],
+            weatherData['location']['name']) , align="center", 
+            fontFile=printerConf['fontFile'], textSize=30, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+        imgArray.append(self.imBox(20,20)) # some blank space / "new line"
+        # The forecast in multiple columns
+        imgSuperArray = []
+        for day in weatherData['forecast']['forecastday']:
+            imArrayDay = []
+            #dayTxt = [ "Today" if day['date'] == datetime.now().isoformat().split('T')[0] else datetime.fromtimestamp(date['date_epoch']).strftime('%A')[0]
+            dayTxt = datetime.fromtimestamp(day['date_epoch']).strftime('%A')#[:3]
+            imArrayDay.append(self.posprinter.printFontText(dayTxt, 
+            align="center", fontFile=printerConf['fontFile'], textSize=130, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+            imCloud = self.weatherCloud(day, currentpxWidth, dayType='day', widthDiv=1)
+            imArrayDay.append(imCloud)
+            # Forecast text
+            # Add blank spaces to ensure line break, if a text is too short to expand to multiple lines
+            # FIXME "center does not seem to work when there are line breaks"
+            forecastTxt = "{:<16}".format(day['day']['condition']['text'])
+            imArrayDay.append(self.posprinter.printFontText(
+            forecastTxt, align="center", 
+            fontFile=printerConf['fontFile'], textSize=90, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+            # Temperature
+            imArrayDay.append(self.posprinter.printFontText(u'%.1f\xb0' % 
+            day['day']['maxtemp_c'], align="center", 
+            fontFile=printerConf['fontFile'], textSize=180, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+            windSpeed = day['day']['maxwind_kph']/3.6
+            imArrayDay.append(self.posprinter.printFontText(u'avg %.1f\xb0\nmin %.1f\xb0\nmax %.1f m/s' % 
+            (day['day']['avgtemp_c'],day['day']['mintemp_c'],windSpeed), align="center", 
+            fontFile=printerConf['fontFile'], textSize=80, 
+            leading=0.25, returnPILObject=True, dontPrint=True))
+            imgSuperArray.append(imArrayDay)
+
+
+        imgColumns, height, imgData = self.combinePILObjects(imgSuperArray, currentpxWidth, printerConf, doPrint=False, multiCol=True)
+        imgArray.append(imgColumns)
+        imgArray.append(self.posprinter.printLine(returnPILObject=True, dontPrint=True))
+        imgMaster, height, imgData = self.combinePILObjects(imgArray, currentpxWidth, printerConf) 
+        return (height, imgData, [0 if not printerConf['rotate'] else 1][0], "image/png")

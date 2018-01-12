@@ -68,6 +68,6 @@ while True:
         pass
     if any(x in printFeeds for x in ['weather','all']):
         printout.commonPrint(conn, 'WeatherCurrent', currentpxWidth, printerConf)
-        #printout.commonPrint(conn, 'WeatherForecast', currentpxWidth, printerConf)
+        printout.commonPrint(conn, 'WeatherForecast', currentpxWidth, printerConf)
     # Basic rate limiting. Also we do not want to query the database too often.
     time.sleep(2)
