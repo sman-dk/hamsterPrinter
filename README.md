@@ -22,7 +22,8 @@ Twitter is real time. Facebook and Instagram is updated regularly by polling the
 * Weather from Apixu.com
 
 ## Installation guide
-`apt-get install mysql-server
+```apt-get install mysql-server
+```
 
 ### Create the database schema
 Log in to mysql  
