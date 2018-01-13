@@ -25,8 +25,9 @@ Twitter is real time. Facebook and Instagram is updated regularly by polling the
     apt-get install mysql-server
 
 ### Create the database schema
-Log in to mysql
+Log in to mysql  
     mysql -uroot -p
+
 Then run the following (adjust with your desired password)
 ```CREATE DATABASE hamsterprinter CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 create user printer;
@@ -89,17 +90,18 @@ initctl start svscan
 ```
 
 #### Quick cheat sheet for daemontools
-Status for an individual service (e.g. printer.py):
+Status for an individual service (e.g. printer.py):  
     svstat /etc/service/printer
-Status for all services:
+Status for all services:  
     svstat /etc/service/*
-Stop a service:
+Stop a service:  
     svc -d /etc/service/printer
-Stop all services
+Stop all services  
     svc -d /etc/service/*
-Starting a service: svc -u <path>
+Starting a service:  
+svc -u <path>
 
-Tailing a log (daemontools has its own log format):
+Tailing a log (daemontools has its own log format):  
     tail -f /etc/service/printer/log/main/current | tai64nlocal
-Tailing all the logs:
+Tailing all the logs:  
     tail -f /etc/service/*/log/main/current | tai64nlocal
