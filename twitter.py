@@ -9,7 +9,8 @@ import atexit
 import time
 import json
 import MySQLdb
-
+from os.path import dirname, realpath, sep, pardir
+basedir=dirname(realpath(__file__)) + sep
 # Argument parsing
 
 parser = argparse.ArgumentParser(description='Twitter feeder for hamsterPrinter')
@@ -19,7 +20,7 @@ args = parser.parse_args()
 
 # Load config
 hamster = hamsterPrinter.hamster()
-cfg = hamster.readConfig(cfg=args.config)
+cfg = hamster.readConfig(cfg=basedir + args.config)
 
 # Connect to mysql
 

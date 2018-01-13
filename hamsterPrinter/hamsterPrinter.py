@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from os.path import dirname, realpath, sep, pardir
 import sys
-sys.path.insert(0, '../pyPOSprinter')
+sys.path.append(dirname(realpath(__file__)) + sep + pardir + sep + pardir + sep + "pyPOSprinter")
 import qrcode
 from io import BytesIO
 import Image
@@ -81,6 +82,7 @@ class printout:
     """Print stuff from Twitter"""
     def __init__(self, posprinter):
         self.posprinter = posprinter
+        self.basedir = dirname(realpath(__file__)) + sep + pardir + sep
 
     def imBox(self, width, height):
         """Create a white rectangle"""
@@ -193,10 +195,9 @@ class printout:
         """Construct image with the tweet and print it"""
         # Create an array of PIL objects
         imgArray = []
-
         iconHeight = 120
         imgQR = self.qrIcon(twitterData['url'], size=iconHeight)
-        imgTwit = Image.open("/home/georg/hamster/hamsterPrinter/artwork/SoMe/agata/twitter.png").convert("1")
+        imgTwit = Image.open(dirname(realpath(__file__)) + sep + pardir + sep + "/artwork/SoMe/agata/twitter.png").convert("1")
         imgTwit = imgTwit.resize([iconHeight-2*4,iconHeight-2*4]) # QR has a border of 4
         headTxt = "%s @%s %s\n%s" % (twitterData['name'], twitterData['screen_name'], [ "retweeted" if twitterData['retweet'] else "tweeted"][0], twitterData['created_at'])
         imHeadTxtWidth = currentpxWidth - 2*iconHeight - 2 - 12
@@ -237,7 +238,7 @@ class printout:
         return (height, imgData, [0 if not printerConf['rotate'] else 1][0], "image/png")
 
     def weatherCloud(self, weatherData, currentpxWidth, dayType, widthDiv=1.3):
-        basedir="artwork/weather/georg"
+        basedir=self.basedir + "artwork/weather/georg"
         if dayType == "current":
             dayOrNight = [ "day" if weatherData['current']['is_day'] is 1 else "night"][0]
         else:
@@ -284,7 +285,7 @@ class printout:
         imWindText = self.posprinter.printFontText('%.1f m/s' % mps, align="left", 
             fontFile=printerConf['fontFile'], textSize=40, 
             leading=0.25, returnPILObject=True, dontPrint=True)
-        basedir="artwork/weather/georg"
+        basedir=self.basedir + "artwork/weather/georg"
         dayOrNight = [ "day" if weatherData['current']['is_day'] is 1 else "night"][0]
         try:
             filePath = "%s/%s/arrow.png" % (basedir,dayOrNight)

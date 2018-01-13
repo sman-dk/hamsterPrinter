@@ -10,6 +10,8 @@ import json
 import requests
 import MySQLdb
 import schedule
+from os.path import dirname, realpath, sep, pardir
+basedir=dirname(realpath(__file__)) + sep
 
 # Argument parsing
 
@@ -20,7 +22,7 @@ args = parser.parse_args()
 
 # Load config
 hamster = hamsterPrinter.hamster()
-cfg = hamster.readConfig(cfg=args.config)
+cfg = hamster.readConfig(cfg=basedir + args.config)
 
 # Connect to mysql
 
