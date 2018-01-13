@@ -9,7 +9,7 @@ The software has been tested on Debian/Ubuntu.
 
 The software consists of a number of applications (one for each source type) that feed a MySQL database with data and an application that formats and prints the data. I use daemontools for running the processes and keeping them alive.
 
-E.g. 
+E.g.  
 twitter.py \  
 facebook.py ----> MySQL ---> printer.py  ---> USB POS printer ---> Awesome printing  
 weather.py /
