@@ -339,7 +339,6 @@ class printout:
             imArrayDay.append(imCloud)
             # Forecast text
             # Add blank spaces to ensure line break, if a text is too short to expand to multiple lines
-            # FIXME "center does not seem to work when there are line breaks"
             forecastTxt = "{:<16}".format(day['day']['condition']['text'])
             imArrayDay.append(self.posprinter.printFontText(
             forecastTxt, align="center", 
