@@ -55,9 +55,16 @@ if any([x in printerConf['rotate'] for x in ['true', 'True', 'yes', 'Yes', '180'
 else:
     printerConf['rotate'] = False
 printerConf['textSize'] = int(printerConf['textSize'])
+optionalKeys = ['baudrate']
+for k in optionalKeys:
+    try:
+        printerConf[k] = cfg.get('printer', k)
+    except:
+        pass
 
 # Setup printer
-posprinter = POSprinter.POSprinter(port=printerConf['dev'])
+posprinter = POSprinter.POSprinter(port=printerConf['dev'], 
+    baudrate=[printerConf['baudrate'] if 'baudrate' in printerConf else 9600][0])
 printout = hamsterPrinter.printout(posprinter)
 currentpxWidth = 2 * posprinter.pxWidth
 
