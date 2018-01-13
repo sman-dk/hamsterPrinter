@@ -11,9 +11,7 @@ The software consists of a number of applications (one for each source type) tha
 
 E.g. 
 twitter.py \  
-            \  
 facebook.py ----> MySQL ---> printer.py  ---> USB POS printer ---> Awesome printing  
-            /  
 weather.py /
 
 ## Supported inputs / feeders
