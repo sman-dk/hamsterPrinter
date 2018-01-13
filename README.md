@@ -60,9 +60,9 @@ sudo pip install tweepy mysql-python argparse configparser qrcode Pillow schedul
 Adjust hamsterPrinter.cfg to your needs and run the instances (printer.py, twitter.py etc.) by hand to see if everything works as intended.
 
 ### Keeping the software running
-You can use whatever tool you like to keep the processes running. I use the package daemontools as it daemonizes a process in an easy way.
-`sudo apt-get install daemontools daemontools-run`
-Run the following to setup daemontools. Adjust the first two lines with the location of hamsterPrinter and the username it should run under. E.g. you could make a user called "hamster" (`adduser hamster`).
+You can use whatever tool you like to keep the processes running. I use the package daemontools as it daemonizes a process in an easy way.  
+`sudo apt-get install daemontools daemontools-run`  
+Run the following to setup daemontools. Adjust the first two lines with the location of hamsterPrinter and the username it should run under. E.g. you could create a user called "hamster" `adduser hamster`.
 
 ```sudo -s
 BASEDIR=/home/hamster # Adjust to your neeeds
@@ -97,7 +97,7 @@ Status for all services:
 Stop a service:  
 `svc -d /etc/service/printer`  
 Stop all services  
-`svc -d /etc/service/*`
+`svc -d /etc/service/*`  
 Starting a service:  
 `svc -u <path>`  
 
