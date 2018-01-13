@@ -91,17 +91,17 @@ initctl start svscan
 
 #### Quick cheat sheet for daemontools
 Status for an individual service (e.g. printer.py):  
-`svstat /etc/service/printer
+`svstat /etc/service/printer  
 Status for all services:  
-`svstat /etc/service/*`
+`svstat /etc/service/*`  
 Stop a service:  
-`svc -d /etc/service/printer`
+`svc -d /etc/service/printer`  
 Stop all services  
 `svc -d /etc/service/*`
 Starting a service:  
-`svc -u <path>`
+`svc -u <path>`  
 
 Tailing a log (daemontools has its own log format):  
-`tail -f /etc/service/printer/log/main/current | tai64nlocal`
+`tail -f /etc/service/printer/log/main/current | tai64nlocal`  
 Tailing all the logs:  
-`tail -f /etc/service/*/log/main/current | tai64nlocal`
+`tail -f /etc/service/*/log/main/current | tai64nlocal`  
