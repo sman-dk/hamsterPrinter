@@ -91,7 +91,7 @@ initctl start svscan
 
 #### Quick cheat sheet for daemontools
 Status for an individual service (e.g. printer.py):  
-`svstat /etc/service/printer  
+`svstat /etc/service/printer`  
 Status for all services:  
 `svstat /etc/service/*`  
 Stop a service:  
