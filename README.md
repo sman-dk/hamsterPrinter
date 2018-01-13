@@ -23,15 +23,19 @@ Twitter is real time. Facebook and Instagram is updated regularly by polling the
 
 ## Installation guide
 You need a MySQL server
-```apt-get install mysql-server
+```
+apt-get install mysql-server
 ```
 
 ### Create the database schema
 Log in to mysql  
-```mysql -uroot -p```
+```
+mysql -uroot -p
+```
 
 Then run the following (adjust with your desired password)
-```CREATE DATABASE hamsterprinter CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+CREATE DATABASE hamsterprinter CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 create user printer;
 grant all on hamsterprinter.* to 'printer'@'localhost' identified by 'awesomePassphrase';
 create user feeder;
@@ -49,12 +53,14 @@ INSERT INTO srcType (id, shortName) VALUES(5, "WeatherCurrent");
 ```
 
 ### Software and dependencies:
-```git clone https://github.com/sman-dk/pyPOSprinter.git
+```
+git clone https://github.com/sman-dk/pyPOSprinter.git
 git clone https://github.com/sman-dk/hamsterPrinter.git
 ```
 pyPOSprinter is used to talk to the printer and hamsterPrinter expect it to be placed in a folder next to hamsterPrinter as in the above example.
 
-```sudo apt-get install libmysqlclient-dev python-pip
+```
+sudo apt-get install libmysqlclient-dev python-pip
 sudo pip install tweepy mysql-python argparse configparser qrcode Pillow schedule
 ```
 
@@ -63,7 +69,8 @@ Adjust hamsterPrinter.cfg to your needs and run the instances (printer.py, twitt
 
 ### Keeping the software running
 You can use whatever tool you like to keep the processes running. I use the package daemontools as it daemonizes a process in an easy way.  
-```sudo apt-get install daemontools daemontools-run
+```
+sudo apt-get install daemontools daemontools-run
 ```
 Run the following to setup daemontools. Adjust the first two lines with the location of hamsterPrinter and the username it should run under. E.g. you could create a user called "hamster" `adduser hamster`.
 
