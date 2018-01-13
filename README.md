@@ -1,5 +1,6 @@
 # Social Media Hamster Printer
 *OBS This is still in early development stages. Wait a few days/weeks and check back in to see if this message has been removed :-)*
+
 Prints messages from social media (Facebook, Twitter etc.) and other sources on a POS/receipt printer
 
 The software has been tested on Debian/Ubuntu.
@@ -9,10 +10,10 @@ The software has been tested on Debian/Ubuntu.
 The software consists of a number of applications (one for each source type) that feed a MySQL database with data and an application that formats and prints the data. I use daemontools for running the processes and keeping them alive.
 
 E.g. 
-twitter.py \
-            \
-facebook.py ----> MySQL ---> printer.py  ---> USB POS printer ---> Awesome printing 
-            /
+twitter.py \  
+            \  
+facebook.py ----> MySQL ---> printer.py  ---> USB POS printer ---> Awesome printing  
+            /  
 weather.py /
 
 ## Supported inputs / feeders
@@ -43,7 +44,7 @@ INSERT INTO srcType (id, shortName) VALUES(4, "WeatherForecast");
 INSERT INTO srcType (id, shortName) VALUES(5, "WeatherCurrent");```
 
 ### Software and dependencies:
-````git clone https://github.com/sman-dk/pyPOSprinter.git
+```git clone https://github.com/sman-dk/pyPOSprinter.git
 git clone https://github.com/sman-dk/hamsterPrinter.git```
 pyPOSprinter is used to talk to the printer and hamsterPrinter expect it to be placed in a folder next to hamsterPrinter as in the above example.
 
