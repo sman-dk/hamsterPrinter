@@ -1,14 +1,14 @@
 [mysql-feeder]
 host: localhost
 user: feeder
-passphrase: xx
-dbname: xx
+passphrase: awesomePassphrase
+dbname: hamsterprinter
 
 [mysql-printer]
 host: localhost
 user: printer
-passphrase: xx
-dbname: xx
+passphrase: awesomePassphrase
+dbname: hamsterprinter
 
 
 [printer]
