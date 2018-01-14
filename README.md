@@ -114,6 +114,6 @@ Starting a service:
 `svc -u <path>`  
 
 Tailing a log (daemontools has its own log format):  
-`tail -f /etc/service/printer/log/main/current | tai64nlocal`  
+`tail -F /etc/service/printer/log/main/current | tai64nlocal`  
 Tailing all the logs:  
-`tail -f /etc/service/*/log/main/current | tai64nlocal`  
+`tail -F /etc/service/*/log/main/current | tai64nlocal`  
