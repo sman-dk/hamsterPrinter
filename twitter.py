@@ -135,7 +135,8 @@ if 'follow' in twitterConf:
         print "Looked up id for user %s and got id %i. Will now follow on Twitter." % (username,user.id)
     if len(userIdList) > 0:
         twitterConf['followIds'] = userIdList
-
+if 'filter' in twitterConf:
+    print "Twitter hashtags: %s" % twitterConf['filter']
 # our filter
 stream.filter(
     track=[ twitterConf['filter'].split() if 'filter' in twitterConf else None][0],

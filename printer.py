@@ -1,10 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import sys
-sys.path.insert(0, '../pyPOSprinter')
 from hamsterPrinter import hamsterPrinter
-from pyqrnative import PyQRNative
-from POSprinter import POSprinter
 import argparse
 import atexit
 import time
@@ -46,7 +43,7 @@ def exit_handler():
 atexit.register(exit_handler)
 
 # Load printer config
-keys = ['dev', 'rotate', 'textSize', 'fontFile']
+keys = ['dev', 'rotate', 'textSize', 'fontFile', 'printerWidth', 'printType']
 printerConf = {}
 for k in keys:
     printerConf[k] = cfg.get('printer', k)
@@ -55,6 +52,7 @@ if any([x in printerConf['rotate'] for x in ['true', 'True', 'yes', 'Yes', '180'
 else:
     printerConf['rotate'] = False
 printerConf['textSize'] = int(printerConf['textSize'])
+printerConf['printerWidth'] = int(printerConf['printerWidth'])
 optionalKeys = ['baudrate']
 for k in optionalKeys:
     try:
@@ -63,20 +61,17 @@ for k in optionalKeys:
         pass
 
 # Setup printer
-posprinter = POSprinter.POSprinter(port=printerConf['dev'], 
-    baudrate=[printerConf['baudrate'] if 'baudrate' in printerConf else 9600][0])
-printout = hamsterPrinter.printout(posprinter)
-currentpxWidth = 2 * posprinter.pxWidth
+printout = hamsterPrinter.printout(printerConf)
 
 # Which feeds to print
 printFeeds = [ i.lower() for i in cfg.get('printer', 'printFeeds').split()]
 while True:
     if any(x in printFeeds for x in ['twitter','all']):
-        printout.commonPrint(conn, 'Twitter', currentpxWidth, printerConf)
+        printout.commonPrint(conn, 'Twitter')
     if any(x in printFeeds for x in ['facebook','all']):
         pass
     if any(x in printFeeds for x in ['weather','all']):
-        printout.commonPrint(conn, 'WeatherCurrent', currentpxWidth, printerConf)
-        printout.commonPrint(conn, 'WeatherForecast', currentpxWidth, printerConf)
+        printout.commonPrint(conn, 'WeatherCurrent')
+        printout.commonPrint(conn, 'WeatherForecast')
     # Basic rate limiting. Also we do not want to query the database too often.
     time.sleep(2)
