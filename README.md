@@ -53,14 +53,13 @@ INSERT INTO srcType (id, shortName) VALUES(5, "WeatherCurrent");
 ```
 
 ### Software and dependencies:
+In this example we place the software in /home/hamster
 ```
-git clone https://github.com/sman-dk/pyPOSprinter.git
 git clone https://github.com/sman-dk/hamsterPrinter.git
 ```
-pyPOSprinter is used to talk to the printer and hamsterPrinter expect it to be placed in a folder next to hamsterPrinter as in the above example.
-
+Dependencies
 ```
-sudo apt-get install libmysqlclient-dev python-pip
+sudo apt-get install libmysqlclient-dev python-pip python-escpos
 sudo pip install tweepy mysql-python argparse configparser qrcode Pillow schedule
 ```
 
