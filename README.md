@@ -44,8 +44,11 @@ use hamsterprinter;
 FLUSH PRIVILEGES;
 CREATE TABLE printout (id int NOT NULL AUTO_INCREMENT, dt DATETIME DEFAULT CURRENT_TIMESTAMP, printed BOOLEAN NOT NULL DEFAULT 0, srcType int NOT NULL, height INT DEFAULT NULL, printedImg MEDIUMBLOB DEFAULT NULL, printedImgRotated BOOLEAN DEFAULT 0, printedImgMimeType VARCHAR(30) DEFAULT NULL, jdoc JSON , PRIMARY KEY(ID));
 CREATE INDEX idx_printout ON printout(dt, printed, srcType, height, printedImgMimeType);
-CREATE TABLE srcType (id int NOT NULL, shortName VARCHAR(32), comment VARCHAR(100), PRIMARY KEY(ID));```
-```INSERT INTO srcType (id, shortName) VALUES(1, "Twitter");
+CREATE TABLE srcType (id int NOT NULL, shortName VARCHAR(32), comment VARCHAR(100), PRIMARY KEY(ID));
+```
+
+```
+INSERT INTO srcType (id, shortName) VALUES(1, "Twitter");
 INSERT INTO srcType (id, shortName) VALUES(2, "Facebook");
 INSERT INTO srcType (id, shortName) VALUES(3, "Instagram");
 INSERT INTO srcType (id, shortName) VALUES(4, "WeatherForecast");
