@@ -247,7 +247,7 @@ class printout:
                 if h > orgMaxHeight:
                     orgMaxHeight = h
             numCols = len(imArray)
-            imgMaster = self.imBox(self.printerConf['printerWidth'], orgMaxHeight)
+            imgMaster = self.imBox(self.printerConf['printerWidth'], orgMaxHeight/numCols)
             # Paste the columns together
             offset = 0
             numCols = len(imArray)
