@@ -14,7 +14,7 @@ from datetime import datetime
 import ImageFont, ImageDraw, Image
 from escpos.printer import Serial, Usb
 
-"""version 1.0 - feeder for the hamsterPrinter a SoMe etc. POS printer"""
+"""Feeder for the hamsterPrinter a SoMe etc. POS printer"""
 class hamster:
     """Basic stuff like reading the cfg and other common stuff"""
     def readConfig(self, cfg='hamsterPrinter.cfg'):
