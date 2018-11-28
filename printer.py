@@ -21,8 +21,6 @@ hamster = hamsterPrinter.hamster()
 cfg = hamster.readConfig(cfg=basedir + args.config)
 
 # Connect to mysql
-
-
 keys = ['host', 'user', 'passphrase', 'dbName']
 mysqlConf = {}
 for k in keys:

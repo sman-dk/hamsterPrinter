@@ -485,7 +485,7 @@ class printout:
             # Append daily forecast to mulicolumn forecast
             imgSuperArray.append(imArrayDay)
         # Combine multicolumn forecast to one object
-        imgColumns, height, imgData = self.combinePILObjects(imgSuperArray, multiCol=True)
+        imgColumns, height, imgData = self.combinePILObjects(imgSuperArray, multiCol=True, doPrint=False)
         # Append multicolumn forecast to what is to be printed
         imgArray.append(imgColumns)
         imgArray.append(self.printLine())
