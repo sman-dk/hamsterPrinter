@@ -465,14 +465,14 @@ class printout:
             imArrayDay = []
             # Weekday
             #dayTxt = [ "Today" if day['date'] == datetime.now().isoformat().split('T')[0] else datetime.fromtimestamp(date['date_epoch']).strftime('%A')[0]
-            dayTxt = datetime.fromtimestamp(day['date_epoch']).strftime('%A')#[:3]
-            imArrayDay.append(self.imText(dayTxt, align="center", textSize=130))
+            # Blank spaces if name of weekday is short than 9 (len("wednesday") = 9) to avoid clouds in different heights
+            dayTxt = datetime.fromtimestamp("{:<9}".format(day['date_epoch'])).strftime('%A')#[:3]
+            imArrayDay.append(self.imText(dayTxt, align="center", textSize=110))
             # Weather cloud
             imCloud = self.weatherCloud(day, 'day', widthDiv=1)
             imArrayDay.append(imCloud)
             # Forecast text
-            # Blank spaces are added to ensure line break, if a text is too short to expand to multiple lines
-            # FIXME does not seem to work as it should
+            # Blank spaces are added to ensure line break, if a text is too short to expand to at least two lines
             forecastTxt = "{:<16}".format(day['day']['condition']['text'])
             imArrayDay.append(self.imText(
             forecastTxt, align="center", textSize=90))
