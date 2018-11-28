@@ -1,5 +1,5 @@
 # Social Media Hamster Printer
-*OBS This is still in early development stages. Wait a few days/weeks and check back in to see if this message has been removed :-)*
+*OBS Facebook and Instagram support is still missing - but Twitter and weather forecast is implemented*
 
 Prints messages from social media (Facebook, Twitter etc.) and other sources on a POS/receipt printer
 
@@ -7,7 +7,7 @@ The software has been tested on Debian/Ubuntu.
 
 ## Overview
 
-The software consists of a number of applications (one for each source type) that feed a MySQL database with data and an application that formats and prints the data. I use daemontools for running the processes and keeping them alive.
+The software consists of a number of applications (one for each source type) that feed a MySQL database with data and an application that formats and prints the data. In the example below I use daemontools for running the processes and keeping them alive, but you can of course use systemd etc. if you are used to that.
 
 E.g.  
 twitter.py \  
