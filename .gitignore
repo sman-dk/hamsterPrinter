@@ -102,3 +102,4 @@ ENV/
 
 # sman ignoring config files
 *.cfg
+.DS_Store
