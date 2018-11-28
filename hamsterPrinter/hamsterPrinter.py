@@ -465,12 +465,8 @@ class printout:
             imArrayDay = []
             # Weekday
             #dayTxt = [ "Today" if day['date'] == datetime.now().isoformat().split('T')[0] else datetime.fromtimestamp(date['date_epoch']).strftime('%A')[0]
-            dayTxt = datetime.fromtimestamp(day['date_epoch']).strftime('%A')
-            # Blank spaces if name of weekday is short than 9 (len("wednesday") = 9) to avoid clouds in different heights
-            dayTxt = "{:<9}".format(dayTxt)
-            # An alternative is to just use the first three letters
-            #dayTxt = dayTxt[:3]
-            imArrayDay.append(self.imText(dayTxt, align="center", textSize=110))
+            dayTxt = datetime.fromtimestamp(day['date_epoch']).strftime('%A')[:3]
+            imArrayDay.append(self.imText(dayTxt, align="center", textSize=140))
             # Weather cloud
             imCloud = self.weatherCloud(day, 'day', widthDiv=1)
             imArrayDay.append(imCloud)
