@@ -235,11 +235,11 @@ class printout:
             (self.printerConf['printerWidth'] - pxWidth)/2 + pxWidth,pxHeading+pxThickness), fill=0)
         return img
 
-    def combinePILObjects(self, imgArray, doPrint=True, multiCol=False):
+    def combinePILObjects(self, imgArray, doPrint=True, multiCol=False, ignoreRotate=False):
         """Combine objects and print them"""
         if multiCol:
             # Multiple columns object (e.g. printing wearther forecast). imgArray is then an array of arrays.
-            imArray = [ self.combinePILObjects(i, doPrint=False) for i in imgArray]
+            imArray = [ self.combinePILObjects(i, doPrint=False, ignoreRotate=True) for i in imgArray]
             # Determine height pre multicol
             orgMaxHeight=0
             for im in imArray:
@@ -247,7 +247,7 @@ class printout:
                 if h > orgMaxHeight:
                     orgMaxHeight = h
             numCols = len(imArray)
-            imgMaster = self.imBox(self.printerConf['printerWidth'], orgMaxHeight/numCols)
+            imgMaster = self.imBox(self.printerConf['printerWidth'], orgMaxHeight)
             # Paste the columns together
             offset = 0
             numCols = len(imArray)
@@ -273,7 +273,7 @@ class printout:
             for img in imgArray:
                 imgMaster.paste(img,(0,offset))
                 offset += img.size[1]
-            if self.printerConf['rotate']:
+            if self.printerConf['rotate'] and not ignoreRotate:
                 imgMaster = imgMaster.rotate(180)
 
         height = imgMaster.size[1]
@@ -284,6 +284,7 @@ class printout:
         if doPrint:
             bytes_io.seek(0)
             self.p.image(bytes_io, impl=self.printerConf['printType'])
+        # return: PIL-object, height (int), PNG-file
         return(imgMaster, height, imgData)
 
     def qrIcon(self, url, size=120):
@@ -450,36 +451,44 @@ class printout:
         return (height, imgData, [0 if not self.printerConf['rotate'] else 1][0], "image/png")
 
     def weatherforecast(self, weatherData):
+        # Header: "Weather forecast", date etc.
         imgArray = []
         imgArray.append(self.imText('Weather forecast', align="center", textSize=60))
         imgArray.append(self.imText("%s %s" % 
             (weatherData['current']['last_updated'],
             weatherData['location']['name']) , align="center"))
         imgArray.append(self.imBox(20,20)) # some blank space / "new line"
+
         # The forecast in multiple columns
         imgSuperArray = []
         for day in weatherData['forecast']['forecastday']:
             imArrayDay = []
+            # Weekday
             #dayTxt = [ "Today" if day['date'] == datetime.now().isoformat().split('T')[0] else datetime.fromtimestamp(date['date_epoch']).strftime('%A')[0]
             dayTxt = datetime.fromtimestamp(day['date_epoch']).strftime('%A')#[:3]
             imArrayDay.append(self.imText(dayTxt, align="center", textSize=130))
+            # Weather cloud
             imCloud = self.weatherCloud(day, 'day', widthDiv=1)
             imArrayDay.append(imCloud)
             # Forecast text
-            # Add blank spaces to ensure line break, if a text is too short to expand to multiple lines
+            # Blank spaces are added to ensure line break, if a text is too short to expand to multiple lines
+            # FIXME does not seem to work as it should
             forecastTxt = "{:<16}".format(day['day']['condition']['text'])
             imArrayDay.append(self.imText(
             forecastTxt, align="center", textSize=90))
-            # Temperature
+            # Temperature etc.
             imArrayDay.append(self.imText(u'%.1f\xb0' % 
             day['day']['maxtemp_c'], align="center", textSize=180))
             windSpeed = day['day']['maxwind_kph']/3.6
             imArrayDay.append(self.imText(u'avg %.1f\xb0\nmin %.1f\xb0\nmax %.1f m/s' % 
             (day['day']['avgtemp_c'],day['day']['mintemp_c'],windSpeed), align="center", textSize=80))
+            # Append daily forecast to mulicolumn forecast
             imgSuperArray.append(imArrayDay)
-
+        # Combine multicolumn forecast to one object
         imgColumns, height, imgData = self.combinePILObjects(imgSuperArray, multiCol=True)
+        # Append multicolumn forecast to what is to be printed
         imgArray.append(imgColumns)
         imgArray.append(self.printLine())
+        # Create the final image
         imgMaster, height, imgData = self.combinePILObjects(imgArray) 
         return (height, imgData, [0 if not self.printerConf['rotate'] else 1][0], "image/png")
