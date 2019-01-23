@@ -117,7 +117,8 @@ ExecStart=/home/pi/hamsterPrinter/weather.py
 Restart=always
 
 [Install]
-WantedBy=multi-user.target```
+WantedBy=multi-user.target
+```
 
 ```systemctl enable twitter
 systemctl enable printer
