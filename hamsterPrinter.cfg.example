@@ -67,12 +67,13 @@ ForecastDays = 3
 # Length of chute in cm. Only used if printAtEveryInterval is false
 chuteLength: 120
 
-[instagram]
-# Instagrams API over the last few years is bekomming more and more restricted.
-# This software uses an unofficial library that gets the job done, however the library authors do write:
-# "To successfully parse for a long time you should verify your phone number in your Instagram account.
-# The new fake Instagram account with an unverified phone number after ~ 1-24 hours could not do any requests. 
-# All requests will be redirected to the page instagram.com/challenge"
-username: osmhtest
-passphrase: xx
-filter: #love #peace harmony
+# Todo
+#[instagram]
+## Instagrams API over the last few years is becomming more and more restricted.
+## This software uses an unofficial library that gets the job done, however the library authors do write:
+## "To successfully parse for a long time you should verify your phone number in your Instagram account.
+## The new fake Instagram account with an unverified phone number after ~ 1-24 hours could not do any requests. 
+## All requests will be redirected to the page instagram.com/challenge"
+#username: osmhtest
+#passphrase: xx
+#filter: #love #peace harmony

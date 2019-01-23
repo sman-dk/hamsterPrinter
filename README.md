@@ -7,19 +7,19 @@ The software has been tested on Debian/Ubuntu.
 
 ## Overview
 
-The software consists of a number of applications (one for each source type) that feed a MySQL database with data and an application that formats and prints the data. In the example below I use daemontools for running the processes and keeping them alive, but you can of course use systemd etc. if you are used to that.
+The software consists of a number of applications (one for each source type) that feed a MySQL database with data and an application that formats and prints the data. In the example below I use systemd for running the processes and keeping them alive.
 
 E.g.  
-twitter.py \  
-facebook.py ----> MySQL ---> printer.py  ---> USB POS printer ---> Awesome printing  
+twitter.py ----> MySQL ---> printer.py  ---> USB POS printer ---> Awesome printing  
 weather.py /
 
 ## Supported inputs / feeders
-Twitter is real time. Facebook and Instagram is updated regularly by polling their services.
 * Twitter
 * Facebook (Not yet supported)
 * Instagram (Not yet supported)
 * Weather from Apixu.com
+
+n.b. Twitter is using the real time streaming API. This free API does not have a guarantee that 100% of the messages are delivered. I.e. you may experience that a tweet is missing.
 
 ## Installation guide
 You need a MySQL server
@@ -69,51 +69,57 @@ sudo pip install tweepy mysql-python argparse configparser qrcode Pillow schedul
 ### Configuration ###
 Adjust hamsterPrinter.cfg to your needs and run the instances (printer.py, twitter.py etc.) by hand to see if everything works as intended.
 
-### Keeping the software running
-You can use whatever tool you like to keep the processes running. I use the package daemontools as it daemonizes a process in an easy way.  
-```
-sudo apt-get install daemontools daemontools-run
-```
-Run the following to setup daemontools. Adjust the first two lines with the location of hamsterPrinter and the username it should run under. E.g. you could create a user called "hamster" `adduser hamster`.
+### Keeping the software running using systemd
+In this example the software is running in a Raspberry Pi running Raspbian (a Debian distribution). Adjust it to your setup:
 
-```sudo -s
-BASEDIR=/home/hamster # Adjust to your neeeds
-USERNAME=hamster # The user the
-APPDIR=${BASEDIR}/hamsterPrinter
-DAEMONTOOLSDIR=${BASEDIR}/service
-usermod -a -G dialout ${USERNAME}
-mkdir $DAEMONTOOLSDIR
-mkdir 
-for i in twitter facebook instagram weather
-do
-    mkdir ${BASEDIR}/$i
-    mkdir ${BASEDIR/${i}/log
-    echo "#!/bin/bash
-echo starting ${i}.py
-exec setuidgid ${USERNAME} ${APPDIR}/${i}.py" > ${DAEMONTOOLSDIR}/${i}/run
-    echo "#!/bin/bash
-# log in 1MB logfiles
-exec multilog t s1048576 ./main" > ${DAEMONTOOLSDIR}/${i}/log/run
-    chmod +x ${DAEMONTOOLSDIR}/${i}/run
-    chmod +x ${DAEMONTOOLSDIR}/${i}/log/run
-    ln -s ${DAEMONTOOLSDIR}/${i} /etc/service/${i}
-done
-initctl start svscan
-```
+/etc/systemd/system/twitter.service
+```[Unit]
+Description=twitter.py
+After=network.target
 
-#### Quick cheat sheet for daemontools
-Status for an individual service (e.g. printer.py):  
-`svstat /etc/service/printer`  
-Status for all services:  
-`svstat /etc/service/*`  
-Stop a service:  
-`svc -d /etc/service/printer`  
-Stop all services  
-`svc -d /etc/service/*`  
-Starting a service:  
-`svc -u <path>`  
+[Service]
+Type=simple
+# Another Type option: forking
+User=pi
+ExecStart=/home/pi/hamsterPrinter/twitter.py
+Restart=always
 
-Tailing a log (daemontools has its own log format):  
-`tail -F /etc/service/printer/log/main/current | tai64nlocal`  
-Tailing all the logs:  
-`tail -F /etc/service/*/log/main/current | tai64nlocal`  
+[Install]
+WantedBy=multi-user.target```
+
+/etc/systemd/system/printer.service
+```[Unit]
+Description=printer.py
+After=network.target
+
+[Service]
+Type=simple
+# Another Type option: forking
+User=pi
+ExecStart=/home/pi/hamsterPrinter/printer.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target```
+
+/etc/systemd/system/weather.service
+```[Unit]
+Description=weather.py
+After=network.target
+
+[Service]
+Type=simple
+# Another Type option: forking
+User=pi
+ExecStart=/home/pi/hamsterPrinter/weather.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target```
+
+```systemctl enable twitter
+systemctl enable printer
+systemctl enable weather
+systemctl start twitter
+systemctl start printer
+systemctl start weather```
