@@ -81,7 +81,7 @@ After=network.target
 Type=simple
 # Another Type option: forking
 User=pi
-ExecStart=/home/pi/hamsterPrinter/twitter.py
+ExecStart=/usr/bin/env python /home/pi/hamsterPrinter/twitter.py
 Restart=always
 
 [Install]
@@ -97,7 +97,7 @@ After=network.target
 Type=simple
 # Another Type option: forking
 User=pi
-ExecStart=/home/pi/hamsterPrinter/printer.py
+ExecStart=/usr/bin/env python /home/pi/hamsterPrinter/printer.py
 Restart=always
 
 [Install]
@@ -113,7 +113,7 @@ After=network.target
 Type=simple
 # Another Type option: forking
 User=pi
-ExecStart=/home/pi/hamsterPrinter/weather.py
+ExecStart=/usr/bin/env python /home/pi/hamsterPrinter/weather.py
 Restart=always
 
 [Install]
