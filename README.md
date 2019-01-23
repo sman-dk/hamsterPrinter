@@ -22,7 +22,7 @@ weather.py /
 N.b. Twitter is using the real time streaming API. This free API does not have a guarantee that 100% of the messages are delivered. I.e. you may experience that a tweet is missing.
 
 ## Installation guide
-You need a MySQL server
+You need a MySQL server (at least version 5.7 or on Debian, where MariaDB is suddenly used instead, it has to be MariaDB version 10.2.7 or newer)
 ```
 apt-get install mysql-server
 ```
