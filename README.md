@@ -85,7 +85,8 @@ ExecStart=/home/pi/hamsterPrinter/twitter.py
 Restart=always
 
 [Install]
-WantedBy=multi-user.target```
+WantedBy=multi-user.target
+```
 
 /etc/systemd/system/printer.service
 ```[Unit]
@@ -100,7 +101,8 @@ ExecStart=/home/pi/hamsterPrinter/printer.py
 Restart=always
 
 [Install]
-WantedBy=multi-user.target```
+WantedBy=multi-user.target
+```
 
 /etc/systemd/system/weather.service
 ```[Unit]
@@ -122,4 +124,5 @@ systemctl enable printer
 systemctl enable weather
 systemctl start twitter
 systemctl start printer
-systemctl start weather```
+systemctl start weather
+```
