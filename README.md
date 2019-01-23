@@ -63,7 +63,8 @@ git clone https://github.com/sman-dk/hamsterPrinter.git
 Dependencies
 ```
 # N.b. on older Debian versions its libmysqlclient-dev (i.e. without the "default-" prefix)
-sudo apt-get install default-libmysqlclient-dev python-pip
+# libjpeg-dev is required on some systems for installing Pillow
+sudo apt-get install default-libmysqlclient-dev python-pip libjpeg-dev
 sudo pip install tweepy mysql-python argparse configparser qrcode Pillow schedule python-escpos
 ```
 

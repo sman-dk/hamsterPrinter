@@ -4,14 +4,12 @@ from os.path import dirname, realpath, sep, pardir
 import sys
 import qrcode
 from io import BytesIO
-import Image
-import ImageDraw
 import time
 import urllib2 # In python3 this is just urllib
 from StringIO import StringIO
 import json
 from datetime import datetime
-import ImageFont, ImageDraw, Image
+from PIL import ImageFont, ImageDraw, Image
 from escpos.printer import Serial, Usb
 
 """Feeder for the hamsterPrinter a SoMe etc. POS printer"""
