@@ -19,7 +19,7 @@ weather.py /
 * Instagram (Not yet supported)
 * Weather from Apixu.com
 
-n.b. Twitter is using the real time streaming API. This free API does not have a guarantee that 100% of the messages are delivered. I.e. you may experience that a tweet is missing.
+N.b. Twitter is using the real time streaming API. This free API does not have a guarantee that 100% of the messages are delivered. I.e. you may experience that a tweet is missing.
 
 ## Installation guide
 You need a MySQL server
@@ -62,8 +62,9 @@ git clone https://github.com/sman-dk/hamsterPrinter.git
 ```
 Dependencies
 ```
-sudo apt-get install libmysqlclient-dev python-pip python-escpos
-sudo pip install tweepy mysql-python argparse configparser qrcode Pillow schedule
+# N.b. on older Debian versions its libmysqlclient-dev (i.e. without the "default-" prefix)
+sudo apt-get install default-libmysqlclient-dev python-pip
+sudo pip install tweepy mysql-python argparse configparser qrcode Pillow schedule python-escpos
 ```
 
 ### Configuration ###
