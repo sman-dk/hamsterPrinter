@@ -22,9 +22,9 @@ weather.py /
 N.b. Twitter is using the real time streaming API. This free API does not have a guarantee that 100% of the messages are delivered. I.e. you may experience that a tweet is missing.
 
 ## Installation guide
-You need a MySQL server (at least version 5.7 or on Debian, where MariaDB is suddenly used instead, it has to be MariaDB version 10.2.7 or newer)
+You need a MySQL server (at least version 5.7 or on Debian, where MariaDB is suddenly used instead, it has to be MariaDB version 10.2.7 or newer, since we need JSON support in MySQL)
 ```
-apt-get install mysql-server
+apt install mysql-server
 ```
 
 ### Create the database schema
@@ -56,16 +56,18 @@ INSERT INTO srcType (id, shortName) VALUES(5, "WeatherCurrent");
 ```
 
 ### Software and dependencies:
-In this example we place the software in /home/hamster
+In this example we place the software in /home/pi
 ```
 git clone https://github.com/sman-dk/hamsterPrinter.git
 ```
 Dependencies
+
+Install pip from https://pypi.org/project/pip/ (follow their installation instructions)
 ```
 # N.b. on older Debian versions its libmysqlclient-dev (i.e. without the "default-" prefix)
 # libjpeg-dev is required on some systems for installing Pillow
-sudo apt-get install default-libmysqlclient-dev python-pip libjpeg-dev
-sudo pip install tweepy mysql-python argparse configparser qrcode Pillow schedule python-escpos
+sudo apt install default-libmysqlclient-dev libjpeg-dev python-mysql build-essential python-dev
+sudo pip install tweepy mysql-python argparse configparser qrcode Pillow schedule python-escpos requests
 ```
 
 ### Configuration ###
@@ -123,6 +125,7 @@ WantedBy=multi-user.target
 ```
 
 ```systemctl enable twitter
+systemctl enable twitter
 systemctl enable printer
 systemctl enable weather
 systemctl start twitter

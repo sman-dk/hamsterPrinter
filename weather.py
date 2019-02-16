@@ -100,14 +100,14 @@ if "currentEnable" in weatherConf:
         schedule.every(int(weatherConf["currentEnforceUpdateInterval"])).seconds.do(lambda: weatherCurrent(weatherConf))
     if "currentEnforceUpdateTime" in weatherConf:
         for t in weatherConf["currentEnforceUpdateTime"].split():
-            schedule.every().day.at(t).do(lambda: weatherCurrent(weatherConf))
+            schedule.every().day.at(str(t)).do(lambda: weatherCurrent(weatherConf))
 
 if "ForecastEnable" in weatherConf:
     if "ForecastEnforceUpdateInterval" in weatherConf:
         schedule.every(int(weatherConf["ForecastEnforceUpdateInterval"])).seconds.do(lambda: weatherForecast(weatherConf))
     if "ForecastEnforceUpdateTime" in weatherConf:
         for t in weatherConf["ForecastEnforceUpdateTime"].split():
-            schedule.every().day.at(t).do(lambda: weatherForecast(weatherConf))
+            schedule.every().day.at(str(t)).do(lambda: weatherForecast(weatherConf))
 
 # Main loop
 while True:
