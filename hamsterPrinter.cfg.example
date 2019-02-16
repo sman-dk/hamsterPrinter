@@ -62,7 +62,7 @@ currentEnforceUpdateTime: 8:30 16:00
 # Weather forecast
 ForecastEnable: true
 #ForecastEnforceUpdateInterval: 60
-ForecastEnforceUpdateTime: 8:30 16:00
+ForecastEnforceUpdateTime: 08:30 16:00
 ForecastDays = 3
 # Length of chute in cm. Only used if printAtEveryInterval is false
 chuteLength: 120
