@@ -3,6 +3,8 @@
 
 Prints messages from social media (Facebook, Twitter etc.) and other sources on a POS/receipt printer
 
+An example of how it looks: https://twitter.com/sman_dk/status/1033287577552519168
+
 The software has been tested on Debian/Ubuntu.
 
 ## Overview
