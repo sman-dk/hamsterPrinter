@@ -83,7 +83,7 @@ After=network.target
 
 [Service]
 Type=simple
-# Another Type option: forking
+Environment=PYTHONUNBUFFERED=1
 User=pi
 ExecStart=/usr/bin/env python /home/pi/hamsterPrinter/twitter.py
 Restart=always
@@ -99,7 +99,7 @@ After=network.target
 
 [Service]
 Type=simple
-# Another Type option: forking
+Environment=PYTHONUNBUFFERED=1
 User=pi
 ExecStart=/usr/bin/env python /home/pi/hamsterPrinter/printer.py
 Restart=always
@@ -115,7 +115,7 @@ After=network.target
 
 [Service]
 Type=simple
-# Another Type option: forking
+Environment=PYTHONUNBUFFERED=1
 User=pi
 ExecStart=/usr/bin/env python /home/pi/hamsterPrinter/weather.py
 Restart=always
